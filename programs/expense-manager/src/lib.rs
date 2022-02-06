@@ -11,16 +11,27 @@ pub mod expense_manager {
         Ok(())
     }
 
-    pub fn add_amt(ctx:Context<AddAmt>,expense_amt:i32) ->ProgramResult {
+    pub fn income_amt(ctx:Context<IncomeAmt>,inc_amt:i32) ->ProgramResult {
         let base_account=&mut ctx.accounts.base_account;
         let user=&mut ctx.accounts.user;
-        println!("hello integer{}",expense_amt);
-        let calculate=ItemStruct {
-            expense_amt:expense_amt,
+        let calculate=IncomeStruct {
+            amt:inc_amt,
             user_address:*user.to_account_info().key,
         };
-        base_account.expense_list.push(calculate);
-        base_account.total_amount+=expense_amt;
+        base_account.inc_list.push(calculate);
+        base_account.total_amount+=inc_amt;
+        Ok(())
+    }
+
+    pub fn spend_amt(ctx:Context<SpendAmt>,spend_amt:i32) ->ProgramResult {
+        let base_account=&mut ctx.accounts.base_account;
+        let user=&mut ctx.accounts.user;
+        let calculate=SpendStruct {
+            amt:spend_amt,
+            user_address:*user.to_account_info().key,
+        };
+        base_account.spend_list.push(calculate);
+        base_account.total_amount-=spend_amt;
         Ok(())
     }
 }
@@ -35,20 +46,34 @@ pub struct Initialize<'info> {
 }
 
 #[derive(Accounts)]
-pub struct AddAmt<'info> {
+pub struct IncomeAmt<'info> {
   #[account(mut)]
   pub base_account: Account<'info, BaseAccount>,
   pub user:Signer<'info>
 }
 
+#[derive(Accounts)]
+pub struct SpendAmt<'info> {
+    #[account(mut)]
+    pub base_account: Account<'info, BaseAccount>,
+    pub user:Signer<'info>
+  }
+
 #[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize)]
-pub struct ItemStruct {
-    pub expense_amt: i32,
+pub struct IncomeStruct {
+    pub amt: i32,
+    pub user_address: Pubkey,
+}
+
+#[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize)]
+pub struct SpendStruct {
+    pub amt: i32,
     pub user_address: Pubkey,
 }
 
 #[account]
 pub struct BaseAccount{
     pub total_amount: i32,
-    pub expense_list:Vec<ItemStruct>
+    pub inc_list:Vec<IncomeStruct>,
+    pub spend_list:Vec<SpendStruct>
 }

@@ -27,7 +27,7 @@ const main = async () => {
   let account = await program.account.baseAccount.fetch(baseAccount.publicKey);
   console.log("💰 Your base account", account.totalAmount.toString());
 
-  await program.rpc.addAmt(10,{
+  await program.rpc.spendAmt(10,{
     accounts:{
       baseAccount: baseAccount.publicKey,
       user:provider.wallet.publicKey
@@ -38,7 +38,7 @@ const main = async () => {
 
   console.log('💰 Your base account', account.totalAmount.toString());
 
-  console.log('🚀 Test completed',account.expenseList);
+  console.log('🚀 Test completed',account.spendList);
 
 };
 
